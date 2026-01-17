@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>UniSport Bern – Kalender</title>
+
+  <!-- FullCalendar (single global bundle via jsDelivr) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css">
+
+  <!-- Your styles -->
+  <link rel="stylesheet" href="assets/styles.css"/>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="title">UniSport Bern – Kalender</div>
+      <div class="subtitle">Tages- & Wochenansicht aus UniSport-Suchliste</div>
+    </div>
+
+    <div class="controls">
+      <input id="q" type="search" placeholder="Filter: z.B. Yoga, Badminton, vonRoll, 35+ …" />
+      <label class="chk">
+        <input id="onlyAllDay" type="checkbox"/>
+        nur Ganztag
+      </label>
+      <button id="reset" type="button">Reset</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Infos</div>
+      </div>
+      <div class="panel-body">
+        <div id="meta" class="meta">Lade Daten…</div>
+        <div class="hint">
+          Klick auf einen Termin → Details (Ort/Notiz) + Link zum Angebot.
+        </div>
+        <div class="hint small">
+          Hinweis: “Phase …”-Einträge werden für die nächsten Tage projiziert (damit die Woche gefüllt ist).
+        </div>
+      </div>
+    </section>
+
+    <section class="calendar-wrap">
+      <div id="calendar"></div>
+    </section>
+  </main>
+
+  <!-- FullCalendar (single global bundle via jsDelivr) -->
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+
+  <!-- Your app -->
+  <script src="assets/app.js"></script>
+</body>
+</html>

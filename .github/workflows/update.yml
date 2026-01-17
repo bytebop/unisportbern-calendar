@@ -1,0 +1,39 @@
+name: Update UniSport events
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 3 * * *" # täglich 03:17 UTC (04:17/05:17 CH je nach DST)
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Scrape & build events.json
+        run: |
+          python scripts/scrape_unisport.py
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/data/events.json docs/data/meta.json
+          git diff --cached --quiet && echo "No changes" && exit 0
+          git commit -m "Update UniSport events"
+          git push
