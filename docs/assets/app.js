@@ -33,6 +33,10 @@ function parseStart(ev) {
   return isNaN(d.getTime()) ? null : d;
 }
 
+function isMobile() {
+  return window.matchMedia && window.matchMedia("(max-width: 980px)").matches;
+}
+
 function renderMeta(meta, rangeInfo) {
   const el = document.getElementById("meta");
   const d = new Date(meta.updated_at);
@@ -56,22 +60,22 @@ function renderMeta(meta, rangeInfo) {
     fetchJson("data/meta.json")
   ]);
 
-  // Force visible event colors (helps in dark themes / custom CSS)
+  // Force visible colors (dark UI)
   for (const ev of events) {
-    ev.backgroundColor = "rgba(255,255,255,0.22)";
-    ev.borderColor = "rgba(255,255,255,0.45)";
+    ev.backgroundColor = "rgba(255,255,255,0.18)";
+    ev.borderColor = "rgba(255,255,255,0.40)";
     ev.textColor = "#ffffff";
   }
 
-  // Compute min/max date for sanity + auto-jump
+  // Compute min/max
   const starts = events.map(parseStart).filter(Boolean).sort((a, b) => a - b);
   const minD = starts.length ? starts[0] : null;
   const maxD = starts.length ? starts[starts.length - 1] : null;
+
   const rangeInfo = (minD && maxD) ? {
     min: minD.toLocaleString("de-CH"),
     max: maxD.toLocaleString("de-CH"),
   } : null;
-
   renderMeta(meta, rangeInfo);
 
   const qInput = document.getElementById("q");
@@ -86,29 +90,43 @@ function renderMeta(meta, rangeInfo) {
     return events.filter(ev => eventMatches(ev, currentQuery, currentOnlyAllDay));
   }
 
-  // If "today" is outside event range, jump to first event date
+  // Jump to first event if today out of range
   const today = new Date();
   let initialDate = today;
-  if (minD && maxD) {
-    if (today < minD || today > maxD) initialDate = minD;
-  } else if (minD) {
-    initialDate = minD;
-  }
+  if (minD && maxD && (today < minD || today > maxD)) initialDate = minD;
+
+  const initialView = isMobile() ? "timeGridDay" : "timeGridWeek";
 
   const calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: "timeGridWeek",
-    initialDate: initialDate,
+    initialView,
+    initialDate,
     height: "auto",
     nowIndicator: true,
-    firstDay: 1, // Monday
+    firstDay: 1,
+
     headerToolbar: {
       left: "prev,next today",
       center: "title",
       right: "timeGridDay,timeGridWeek,dayGridMonth"
     },
+
+    // Make week/day view much more usable:
+    slotMinTime: "06:00:00",
+    slotMaxTime: "23:00:00",
+    slotDuration: "00:30:00",
+    expandRows: true,
+
+    // Reduce clutter in dense areas
+    eventDisplay: "block",
+    eventOverlap: true,
+    eventMaxStack: 3, // <= important: prevent insane stacks
+
+    // Month view: show "+X more" links
+    dayMaxEvents: true,
+
     eventTimeFormat: { hour: "2-digit", minute: "2-digit", hour12: false },
 
-    // IMPORTANT: pass an ARRAY, not a function object
+    // Provide array of events
     events: filteredEvents(),
 
     eventClick: function (info) {
@@ -153,6 +171,18 @@ function renderMeta(meta, rangeInfo) {
     currentQuery = "";
     currentOnlyAllDay = false;
     refresh();
+  });
+
+  // Improve responsiveness: switch view on resize
+  window.addEventListener("resize", () => {
+    const shouldBeMobile = isMobile();
+    const currentView = calendar.view.type;
+
+    if (shouldBeMobile && currentView === "timeGridWeek") {
+      calendar.changeView("timeGridDay");
+    } else if (!shouldBeMobile && currentView === "timeGridDay") {
+      calendar.changeView("timeGridWeek");
+    }
   });
 })().catch((err) => {
   console.error(err);
