@@ -1,7 +1,7 @@
 {
-  "updated_at": "2026-07-08T06:07:18.232552Z",
-  "rows_parsed": 1129,
-  "events_generated": 5464,
+  "updated_at": "2026-07-09T07:00:22.044212Z",
+  "rows_parsed": 1123,
+  "events_generated": 5443,
   "source": "https://www.zssw.unibe.ch/usp/zms/search.php",
   "phase_lookahead_days": 28
 }
